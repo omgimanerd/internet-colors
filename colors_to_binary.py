@@ -3,11 +3,12 @@
 import json
 import pickle
 
-COLORS_TXT = 'colors.txt'
+COLORS_1_TXT = 'data/colors_split_1.txt'
+COLORS_2_TXT = 'data/colors_split_2.txt'
 
-def colors_to_pickle(pickle_file_out):
+def colors_to_pickle(colors_file_in, pickle_file_out):
     colors = {}
-    with open(COLORS_TXT) as f:
+    with open(colors_file_in) as f:
         for line in f:
             try:
                 data = line.split('_')
@@ -15,8 +16,9 @@ def colors_to_pickle(pickle_file_out):
                 print('Read in {}...'.format(data[0]))
             except:
                 continue
-    with open(pickle_file_out, 'w') as f:
+    with open(pickle_file_out, 'wb') as f:
         pickle.dump(colors, f)
     
 if __name__ == '__main__':
-    colors_to_pickle('colors.bin')
+    colors_to_pickle(COLORS_1_TXT, 'data/colors1.pkl')
+    colors_to_pickle(COLORS_2_TXT, 'data/colors2.pkl')

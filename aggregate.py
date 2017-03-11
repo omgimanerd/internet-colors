@@ -12,8 +12,8 @@ import threading
 import os
 
 NUM_THREADS = cpu_count()
-WEBSITE_CSV = 'top_500_domains.csv'
-COLORS_TXT = 'colors.txt'
+WEBSITE_CSV = 'data/top_500_domains.csv'
+COLORS_FILE = 'data/colors.txt'
 
 def chunks(l, chunks):
     """
@@ -65,7 +65,7 @@ def write_image_data(url, logfile):
         return 0
     width, height = image.size
     colors = sorted(image.getcolors(width * height), key=lambda x: x[0])
-    with open(COLORS_TXT, 'a') as f:
+    with open(COLORS_FILE, 'a') as f:
         f.write('{}_{}\n'.format(url, json.dumps(colors)))
     end = datetime.now()
     return (end - start).total_seconds()

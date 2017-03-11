@@ -3,27 +3,42 @@
 from collections import Counter
 
 import json
+import pickle
 
-COLORS_BINARY = 'colors.bin'
+COLORS_FILE = 'data/colors.txt'
 
-def load():
-    return pickle.load(COLORS_BINARY)
+def get_colors(line):
+    data = line.split('_')
+    return data[0], json.loads(data[1])
 
-"""
-data format:
-[
-  [frequency, [r, g, b]],
-  [frequency, [r, b, b]],
-  ...
-]
-"""
-def freq_by_pixel_count(data):
-    counter = Counter()
-    for entry in data:
-        entry[tuple(data[1])] += data[0]
-    return counter
+def get_frequency_by_pixel_count():
+    freq = Counter()
+    with open('data/colors.txt') as data:
+        for line in data:
+            try:
+                url, colors = get_colors(line)
+                for entry in colors:
+                    freq[tuple(entry[1])] += entry[0]
+                print('Indexed {}...'.format(url))
+            except:
+                continue
+    return freq
+
+def get_frequency_by_occurrence():
+    freq = Counter()
+    with open(COLORS_FILE) as data:
+        for line in data:
+            try:
+                url, colors = get_colors(line)
+                for entry in colors:
+                    freq[tuple(entry[1])] += 1
+                print('Indexed {}...'.format(url))
+            except:
+                continue
+    return freq
 
 if __name__ == '__main__':
-    f = freq_by_pixel_count(load())
-    pickle.dump(f, open('freq_by_pixel_count'))
-    
+    freq = get_frequency_by_pixel_count()
+    with open('data/freq_by_pixel_count.csv', 'a') as f:
+        for color, frequency in freq.items():
+            f.write('{}\t{}\n'.format(frequency, color))
