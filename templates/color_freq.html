@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    {% for color in data %}
+    <div style="background-color:{{ color['hex'] }};
+                color:{{ color['text'] }}">
+      {{ color['hex'] }} {{ color['rgb'] }}
+    </div>
+    {% endfor %}
+  </body>
+</html>

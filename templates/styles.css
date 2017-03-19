@@ -1,0 +1,12 @@
+html, body {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+div {
+  height: 25px;
+  line-height: 25px;
+  font: Trebuchet, serif;
+}
