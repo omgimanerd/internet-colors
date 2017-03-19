@@ -12,8 +12,11 @@ import threading
 import os
 
 NUM_THREADS = cpu_count()
-WEBSITE_CSV = 'data/top_500_domains.csv'
-COLORS_FILE = 'data/colors.txt'
+WEBSITE_CSV = "data/top_500_domains.csv"
+COLORS_FILE = "data/colors.txt"
+IMAGE_WIDTH = 1920
+IMAGE_HEIGHT = 1080
+TIMEOUT_DURATION = 60
 
 def chunks(l, chunks):
     """
@@ -27,8 +30,12 @@ def get_screenshot_command(url, logfile):
     Given a url and a logfile name, this function formats the webkit2png
     command for passing into Popen.
     """
-    return ['webkit2png', 'https://{}'.format(url),
-            '--log={}'.format(logfile), '--feature=javascript']
+    return ["webkit2png",
+            "https://{}".format(url),
+            "--log={}".format(logfile),
+            "--feature=javascript",
+            "-g", str(IMAGE_WIDTH), str(IMAGE_HEIGHT),
+            "--timeout={}".format(TIMEOUT_DURATION)]
 
 def get_image(url, logfile):
     """
@@ -45,8 +52,7 @@ def get_image(url, logfile):
     output, error = command.communicate()
     with open(logfile) as log:
         data = log.read()
-        print(data)
-        if 'Failed to load' in data:
+        if "Failed to load" in data:
             return None
     try:
         return Image.open(io.BytesIO(output))
@@ -57,18 +63,25 @@ def write_image_data(url, logfile):
     """
     Given a url and a logfile name, this fetches a screenshot of the
     webpage at the url and writes its color data to a designated CSV file.
-    It returns the time needed to execute the image fetching and writing.
+    It returns a success status containing a debug message.
     """
     start = datetime.now()
     image = get_image(url, logfile)
     if image is None:
-        return 0
+        return {
+            "success": False,
+            "message": "{} did not return a valid image".format(url)
+        }
     width, height = image.size
     colors = sorted(image.getcolors(width * height), key=lambda x: x[0])
-    with open(COLORS_FILE, 'a') as f:
-        f.write('{}_{}\n'.format(url, json.dumps(colors)))
+    with open(COLORS_FILE, "a") as f:
+        f.write("{}_{}\n".format(url, json.dumps(colors)))
     end = datetime.now()
-    return (end - start).total_seconds()
+    return {
+        "success": True,
+        "message": "Fetched {} ({}x{}) in {}".format(
+            url, width, height, (end - start).total_seconds())
+    }
 
 class AggregatorThread(threading.Thread):
     """
@@ -79,23 +92,23 @@ class AggregatorThread(threading.Thread):
     def __init__(self, id, urls):
         threading.Thread.__init__(self)
         self.id = id
-        self.logfile = 'thread{}.tmp.log'.format(self.id)
+        self.logfile = "thread{}.tmp.log".format(self.id)
         self.urls = urls
 
     def run(self):
-        print('THREAD {} STARTED'.format(self.id))
+        print("THREAD {} STARTED".format(self.id))
         for url in self.urls:
-            timedelta = write_image_data(url, self.logfile)
-            print('THREAD {}: Fetched {} in {}s'.format(self.id, url, timedelta))
-        print('THREAD {} COMPLETED'.format(self.id))
+            result = write_image_data(url, self.logfile)
+            print("THREAD {}: {}".format(self.id, result["message"]))
+        print("THREAD {} COMPLETED".format(self.id))
 
 def get_urls():
     """
     This method fetches the urls to screenshot from a CSV of domains
     """
     with open(WEBSITE_CSV) as f:
-        data = f.read().strip().split('\n')[1:]
-    return list(map(lambda field: field.split(',')[1].strip('"'), data))
+        data = f.read().strip().split("\n")[1:]
+    return list(map(lambda field: field.split(",")[1].strip("\""), data))
 
 def aggregate():
     """
@@ -103,8 +116,8 @@ def aggregate():
     screenshot color data.
     """
     for url in get_urls():
-        timedelta = write_image_data(url, 'tmp.log')
-        print('Fetched {} in {}s'.format(url, timedelta))
+        timedelta = write_image_data(url, "tmp.log")
+        print("Fetched {} in {}s".format(url, timedelta))
 
 def threaded_aggregate():
     """
@@ -119,6 +132,6 @@ def threaded_aggregate():
         threads[i].start()
     for i in range(NUM_THREADS):
         threads[i].join()
-        
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     threaded_aggregate()

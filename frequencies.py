@@ -6,6 +6,10 @@ import json
 import pickle
 
 COLORS_FILE = 'data/colors.txt'
+FREQ_BY_PIXEL_COUNT_TXT = 'data/freq_by_pixel_count.txt'
+FREQ_BY_PIXEL_COUNT_PKL = 'data/freq_by_pixel_count.pkl'
+FREQ_BY_OCCURRENCE_TXT = 'data/freq_by_occurrence.txt'
+FREQ_BY_OCCURRENCE_PKL = 'data/freq_by_occurrence.pkl'
 
 def get_colors(line):
     data = line.split('_')
@@ -39,6 +43,24 @@ def get_frequency_by_occurrence():
 
 if __name__ == '__main__':
     freq = get_frequency_by_pixel_count()
-    with open('data/freq_by_pixel_count.csv', 'a') as f:
-        for color, frequency in freq.items():
-            f.write('{}\t{}\n'.format(frequency, color))
+    sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])
+    with open(FREQ_BY_PIXEL_COUNT_TXT, 'w') as f:
+        for key in sorted_keys:
+            f.write('{}\t{}\n'.format(key, freq[key]))
+    print('Wrote {}...'.format(FREQ_BY_PIXEL_COUNT_TXT))
+    with open(FREQ_BY_PIXEL_COUNT_PKL, 'wb') as f:
+        pickle.dump(freq, f)
+    print('Wrote {}...'.format(FREQ_BY_PIXEL_COUNT_PKL))
+
+    print('Frequency by pixel count written... Press any key to continue...')
+    t = input()
+
+    freq = get_frequency_by_occurrence()
+    sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])
+    with open(FREQ_BY_OCCURRENCE_TXT, 'w') as f:
+        for key in sorted_keys:
+            f.write('{}\t{}\n'.format(key, freq[key]))
+    print('Wrote {}...'.format(FREQ_BY_OCCURRENCE_TXT))
+    with open(FREQ_BY_OCCURRENCE_PKL, 'wb') as f:
+        pickle.dump(freq, f)
+    print('Wrote {}...'.format(FREQ_BY_OCCURRENCE_PKL))
