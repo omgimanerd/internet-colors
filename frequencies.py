@@ -2,6 +2,8 @@
 
 from collections import Counter
 
+from util import iter_colors
+
 import json
 import pickle
 
@@ -17,28 +19,20 @@ def get_colors(line):
 
 def get_frequency_by_pixel_count():
     freq = Counter()
-    with open('data/colors.txt') as data:
-        for line in data:
-            try:
-                url, colors = get_colors(line)
-                for entry in colors:
-                    freq[tuple(entry[1])] += entry[0]
-                print('Indexed {}...'.format(url))
-            except:
-                continue
+    def cb(url, colors):
+        for entry in colors:
+            freq[tuple(entry[1])] += entry[0]
+        print('Indexed {}...'.format(url))
+    iter_colors(cb)
     return freq
 
 def get_frequency_by_occurrence():
     freq = Counter()
-    with open(COLORS_FILE) as data:
-        for line in data:
-            try:
-                url, colors = get_colors(line)
-                for entry in colors:
-                    freq[tuple(entry[1])] += 1
-                print('Indexed {}...'.format(url))
-            except:
-                continue
+    def cb(url, colors):
+        for entry in colors:
+            freq[tuple(entry[1])] += 1
+        print('Indexed {}...'.format(url))
+    iter_colors(cb)
     return freq
 
 if __name__ == '__main__':

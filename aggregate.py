@@ -5,6 +5,8 @@ from PIL import Image
 from multiprocessing import cpu_count
 from subprocess import Popen, PIPE
 
+from util import chunk
+
 import csv
 import io
 import json
@@ -17,13 +19,6 @@ COLORS_FILE = "data/colors.txt"
 IMAGE_WIDTH = 1920
 IMAGE_HEIGHT = 1080
 TIMEOUT_DURATION = 60
-
-def chunks(l, chunks):
-    """
-    Given a list and an integer n, this splits the list in n evenly sized
-    chunks.
-    """
-    return [l[i::chunks] for i in range(chunks)]
 
 def get_screenshot_command(url, logfile):
     """
@@ -124,7 +119,7 @@ def threaded_aggregate():
     This method uses multithreading to fetch website screenshot color
     data.
     """
-    urls = chunks(get_urls(), NUM_THREADS)
+    urls = chunk(get_urls(), NUM_THREADS)
     threads = []
     for i in range(NUM_THREADS):
         threads.append(AggregatorThread(i, urls[i]))

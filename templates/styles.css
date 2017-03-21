@@ -8,5 +8,5 @@ html, body {
 div {
   height: 25px;
   line-height: 25px;
-  font: Trebuchet, serif;
+  font-family: "Montserrat", Trebuchet, serif;
 }

@@ -1,4 +1,5 @@
 *.log
 *.pkl
 *.txt
+__pycache__
 output

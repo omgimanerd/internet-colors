@@ -2,6 +2,8 @@
 
 from jinja2 import Template
 
+from util import get_color_distance, rgb_to_hex, rgb_to_hsv
+
 import colorsys
 import pickle
 
@@ -11,32 +13,12 @@ FREQ_BY_OCCURRENCE_TXT = 'data/freq_by_occurrence.txt'
 FREQ_BY_OCCURRENCE_PKL = 'data/freq_by_occurrence.pkl'
 D2N_THRESHOLD = 7500
 
-def clamp(x):
-    return max(0, min(x, 255))
-
-def rgb_to_hex(rgb):
-    return '#{0:02x}{1:02x}{2:02x}'.format(
-        clamp(rgb[0]), clamp(rgb[1]), clamp(rgb[2]))
-
-def rgb_to_hsv(rgb):
-    return colorsys.rgb_to_hsv(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
-
-def get_text_color(rgb):
-    p_lum = 1 - (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255
-    if p_lum < 0.5:
-        return "#000000"
-    return "#FFFFFF"
-
 def get_dist_to_next(rgb_colors):
     d2n = []
     for i in range(len(rgb_colors) - 1):
         d2n.append(get_color_distance(rgb_colors[i], rgb_colors[i + 1]))
     d2n.append(999999)
     return d2n
-
-def get_color_distance(rgb1, rgb2):
-    return (rgb1[0] - rgb2[0]) ** 2 + (rgb1[1] - rgb2[1]) ** 2 + (
-        (rgb1[2] - rgb2[2]) ** 2)
 
 def load_freq_by_pixel_count():
     with open(FREQ_BY_PIXEL_COUNT_PKL, 'rb') as f:
