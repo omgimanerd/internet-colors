@@ -35,26 +35,23 @@ def get_frequency_by_occurrence():
     iter_colors(cb)
     return freq
 
-if __name__ == '__main__':
-    freq = get_frequency_by_pixel_count()
+def write_to_files(freq, txt_name, pkl_name):
     sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])
-    with open(FREQ_BY_PIXEL_COUNT_TXT, 'w') as f:
+    with oepn(txt_name, 'w') as f:
         for key in sorted_keys:
             f.write('{}\t{}\n'.format(key, freq[key]))
-    print('Wrote {}...'.format(FREQ_BY_PIXEL_COUNT_TXT))
-    with open(FREQ_BY_PIXEL_COUNT_PKL, 'wb') as f:
+    print('Wrote {}...'.format(txt_name))
+    with open(pkl_name, 'wb') as f:
         pickle.dump(freq, f)
-    print('Wrote {}...'.format(FREQ_BY_PIXEL_COUNT_PKL))
+    print('Wrote {}...'.format(pkl_name))
+
+
+if __name__ == '__main__':
+    freq = get_frequency_by_pixel_count()
+    write_to_files(freq, FREQ_BY_PIXEL_COUNT_TXT, FREQ_BY_PIXEL_COUNT_PKL)
 
     print('Frequency by pixel count written... Press any key to continue...')
     t = input()
 
     freq = get_frequency_by_occurrence()
-    sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])
-    with open(FREQ_BY_OCCURRENCE_TXT, 'w') as f:
-        for key in sorted_keys:
-            f.write('{}\t{}\n'.format(key, freq[key]))
-    print('Wrote {}...'.format(FREQ_BY_OCCURRENCE_TXT))
-    with open(FREQ_BY_OCCURRENCE_PKL, 'wb') as f:
-        pickle.dump(freq, f)
-    print('Wrote {}...'.format(FREQ_BY_OCCURRENCE_PKL))
+    write_to_files(freq, FREQ_BY_OCCURRENCE_TXT, FREQ_BY_OCCURRENCE_PKL)
