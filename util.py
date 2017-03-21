@@ -43,6 +43,13 @@ def iter_colors(fn):
     with open(COLORS_FILE) as f:
         return list(map(map_fn, f))
 
+def norm_rgb(rgb):
+    """
+    Given an RGB color value, this returns the same RGB color value with the
+    colors scaled from 0-255 to 0-1.
+    """
+    return list(map(lambda x: x / 255, rgb))
+    
 def rgb_to_hex(rgb):
     """
     Given an RGB color value, this returns the hex code corresponding to the

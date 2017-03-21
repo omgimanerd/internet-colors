@@ -37,7 +37,7 @@ def get_frequency_by_occurrence():
 
 def write_to_files(freq, txt_name, pkl_name):
     sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])
-    with oepn(txt_name, 'w') as f:
+    with open(txt_name, 'w') as f:
         for key in sorted_keys:
             f.write('{}\t{}\n'.format(key, freq[key]))
     print('Wrote {}...'.format(txt_name))
