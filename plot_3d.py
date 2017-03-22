@@ -9,13 +9,19 @@ import numpy as np
 
 import pickle
 
-FREQ_BY_PIXEL_COUNT_PKL = 'freq_by_pixel_count.pkl'
-MAX_POINT_SIZE = 100
+FREQ_BY_PIXEL_COUNT_PKL = 'data/freq_by_pixel_count.pkl'
+FREQUENCY_THRESHOLD = 20000
+MAX_POINT_SIZE = 5000
 
 def get_data():
     with open(FREQ_BY_PIXEL_COUNT_PKL, 'rb') as f:
         data = pickle.load(f)
-    return zip(*data.items())
+        colors, frequencies = [], []
+        for key in data:
+            if data[key] > FREQUENCY_THRESHOLD:
+                colors.append(key)
+                frequencies.append(data[key])
+    return colors, frequencies
 
 def plot(colors, frequencies):
     fig = plt.figure()
@@ -43,4 +49,6 @@ def plot(colors, frequencies):
     plt.show()
 
 if __name__ == '__main__':
-    plot([(16, 140, 57), (28, 45, 199)], [10, 40])
+    colors, frequencies = get_data()
+    print(len(colors))
+    plot(colors, frequencies)
