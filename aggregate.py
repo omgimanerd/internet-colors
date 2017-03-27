@@ -7,7 +7,6 @@ from subprocess import Popen, PIPE
 
 from util import chunk
 
-import csv
 import io
 import json
 import threading
@@ -123,10 +122,10 @@ def threaded_aggregate():
     threads = []
     for i in range(NUM_THREADS):
         threads.append(AggregatorThread(i, urls[i]))
-    for i in range(NUM_THREADS):
-        threads[i].start()
-    for i in range(NUM_THREADS):
-        threads[i].join()
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 if __name__ == "__main__":
     threaded_aggregate()
