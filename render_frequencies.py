@@ -2,16 +2,17 @@
 
 from jinja2 import Template
 
-from util import get_color_distance, rgb_to_hex, rgb_to_hsv
+from util import get_color_distance, get_foreground_color, rgb_to_hex, rgb_to_hsv
 
 import colorsys
 import pickle
+import os
 
 FREQ_BY_PIXEL_COUNT_TXT = 'data/freq_by_pixel_count.txt'
 FREQ_BY_PIXEL_COUNT_PKL = 'data/freq_by_pixel_count.pkl'
 FREQ_BY_OCCURRENCE_TXT = 'data/freq_by_occurrence.txt'
 FREQ_BY_OCCURRENCE_PKL = 'data/freq_by_occurrence.pkl'
-D2N_THRESHOLD = 7500
+D2N_THRESHOLD = 500000
 
 def get_dist_to_next(rgb_colors):
     d2n = []
@@ -29,7 +30,7 @@ def load_freq_by_occurrence():
         return pickle.load(f)
 
 def load_template():
-    with open('templates/color_freq.html') as html:
+    with open('render/templates/color_freq.html') as html:
         return Template(html.read())
 
 if __name__ == '__main__':
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     sorted_rgb_colors = sorted(colors, key=lambda x: colors[x])[-200:][::-1]
     sorted_hex_colors = list(map(rgb_to_hex, sorted_rgb_colors))
     sorted_hsv_colors = list(map(rgb_to_hsv, sorted_rgb_colors))
-    text_colors = list(map(get_text_color, sorted_rgb_colors))
+    text_colors = list(map(get_foreground_color, sorted_rgb_colors))
     d2n = get_dist_to_next(sorted_rgb_colors)
     data = []
     for i in range(len(sorted_rgb_colors)):
@@ -49,12 +50,14 @@ if __name__ == '__main__':
             'text': text_colors[i],
             'd2n': d2n[i]
         })
-    with open('output/freq_by_pixel_count.html', 'w') as out:
+    if not os.path.exists('render/output'):
+        os.makedirs('render/output')
+    with open('render/output/freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
             data=data
         ))
-    filtered = filter(lambda x: x['d2n'] > D2N_THRESHOLD, data)
-    with open('output/filtered_freq_by_pixel_count.html', 'w') as out:
+    filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, data)
+    with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
             data=filtered
         ))

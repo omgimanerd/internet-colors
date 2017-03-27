@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 
 from util import norm_rgb
 
@@ -11,7 +12,10 @@ import pickle
 
 FREQ_BY_PIXEL_COUNT_PKL = 'data/freq_by_pixel_count.pkl'
 FREQUENCY_THRESHOLD = 20000
-MAX_POINT_SIZE = 5000
+MAX_POINT_SIZE = 200
+
+def clamp(x, low, high):
+    return max(min(x, high), low)
 
 def get_data():
     with open(FREQ_BY_PIXEL_COUNT_PKL, 'rb') as f:
@@ -27,8 +31,8 @@ def plot(colors, frequencies):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     r, g, b = zip(*colors)
-    m = max(frequencies)
-    sizes = list(map(lambda x: (x / m) * MAX_POINT_SIZE, frequencies))
+    m = sorted(frequencies)[-10]
+    sizes = list(map(lambda x: clamp(x / m, 0.05, 1) * MAX_POINT_SIZE, frequencies))
     colors = list(map(norm_rgb, colors))
     ax.scatter(r, g, b, c=colors, s=sizes)
     ax.set_xlabel('R')
@@ -46,9 +50,13 @@ def plot(colors, frequencies):
     ax.set_zlim(0, 256)
     ax.set_zticks(range(0, 257, 32))
     ax.tick_params(axis='z', colors='blue')
-    plt.show()
+    return fig, ax
 
 if __name__ == '__main__':
     colors, frequencies = get_data()
-    print(len(colors))
-    plot(colors, frequencies)
+    fig, ax = plot(colors, frequencies)
+    ax.view_init(30, 0)
+    def update(i):
+        ax.view_init(30, i)
+    anim = FuncAnimation(fig, update, frames=np.arange(0, 360), interval=5)
+    anim.save('render/plot_3d.gif', dpi=80, writer='imagemagick')

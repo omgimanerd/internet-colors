@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Ubuntu">
+  </head>
+
+  <body>
+    {% for color in data %}
+    <div style="background-color:{{ color['hex'] }};
+                color:{{ color['text'] }}">
+      {{ color['hex'] }}
+    </div>
+    {% endfor %}
+  </body>
+</html>
