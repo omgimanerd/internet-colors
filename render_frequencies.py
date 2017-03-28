@@ -2,6 +2,7 @@
 
 from jinja2 import Template
 
+from search_color import search_colors
 from util import get_color_distance, get_foreground_color, rgb_to_hex, rgb_to_hsv
 
 import colorsys
@@ -52,12 +53,20 @@ if __name__ == '__main__':
         })
     if not os.path.exists('render/output'):
         os.makedirs('render/output')
+    """
     with open('render/output/freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
             data=data
         ))
+    """
     filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, data)
+    # Take a cut
+    cut = filtered[:40]
+    """
     with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
             data=filtered
         ))
+    """
+    filtered_rgb_colors = list(map(lambda x: x['rgb'], cut))
+    matches = search_colors(filtered_rgb_colors)
