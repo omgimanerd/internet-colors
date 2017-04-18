@@ -77,25 +77,6 @@ def write_image_data(url, logfile):
             url, width, height, (end - start).total_seconds())
     }
 
-class AggregatorThread(threading.Thread):
-    """
-    This class allows us to do the image fetching in a thread so
-    that we can fetch screenshot data faster.
-    """
-
-    def __init__(self, id, urls):
-        threading.Thread.__init__(self)
-        self.id = id
-        self.logfile = "thread{}.tmp.log".format(self.id)
-        self.urls = urls
-
-    def run(self):
-        print("THREAD {} STARTED".format(self.id))
-        for url in self.urls:
-            result = write_image_data(url, self.logfile)
-            print("THREAD {}: {}".format(self.id, result["message"]))
-        print("THREAD {} COMPLETED".format(self.id))
-
 def get_urls():
     """
     This method fetches the urls to screenshot from a CSV of domains
@@ -104,14 +85,20 @@ def get_urls():
         data = f.read().strip().split("\n")[1:]
     return list(map(lambda field: field.split(",")[1].strip("\""), data))
 
-def aggregate():
+def aggregate(urls):
     """
     This is a single threaded aggregation method for fetching website
-    screenshot color data.
+    screenshot color data. We can call this with all the urls to do
+    the aggregation with a single thread, or we can split the urls
+    into chunks to do this with multi-threading
     """
-    for url in get_urls():
-        timedelta = write_image_data(url, "tmp.log")
-        print("Fetched {} in {}s".format(url, timedelta))
+    name = threading.currentThread().getName()
+    print("THREAD {} STARTED".format(name))
+    logfile = "{}.tmp.log".format(name)
+    for url in urls:
+        result = write_image_data(url, logfile)
+        print("THREAD {}: {}".format(name, result["message"]))
+    print("THREAD {} COMPLETED".format(name))
 
 def threaded_aggregate():
     """
@@ -119,13 +106,10 @@ def threaded_aggregate():
     data.
     """
     urls = chunk(get_urls(), NUM_THREADS)
-    threads = []
-    for i in range(NUM_THREADS):
-        threads.append(AggregatorThread(i, urls[i]))
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    threads = [threading.Thread(
+        target=aggregate, args=(urls[i],)) for i in range(NUM_THREADS)]
+    [thread.start() for thread in threads]
+    [thread.join() for thread in threads]
 
 if __name__ == "__main__":
     threaded_aggregate()
