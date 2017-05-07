@@ -26,6 +26,10 @@ def get_frequency_by_pixel_count():
     iter_colors(cb)
     return freq
 
+def load_freq_by_pixel_count():
+    with open(FREQ_BY_PIXEL_COUNT_PKL, 'rb') as f:
+        return pickle.load(f)
+
 def get_frequency_by_occurrence():
     freq = Counter()
     def cb(url, colors):
@@ -34,6 +38,10 @@ def get_frequency_by_occurrence():
         print('Indexed {}...'.format(url))
     iter_colors(cb)
     return freq
+
+def load_freq_by_occurrence():
+    with open(FREQ_BY_OCCURRENCE_PKL, 'rb') as f:
+        return pickle.load(f)
 
 def write_to_files(freq, txt_name, pkl_name):
     sorted_keys = sorted(freq.keys(), key=lambda x: freq[x])

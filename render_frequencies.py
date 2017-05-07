@@ -2,18 +2,14 @@
 
 from jinja2 import Template
 
+from frequencies import load_freq_by_pixel_count, load_freq_by_occurrence
 from search_color import search_colors
-from util import get_color_distance, get_foreground_color, rgb_to_hex, rgb_to_hsv
+from util import *
 
-import colorsys
 import itertools
 import pickle
 import os
 
-FREQ_BY_PIXEL_COUNT_TXT = 'data/freq_by_pixel_count.txt'
-FREQ_BY_PIXEL_COUNT_PKL = 'data/freq_by_pixel_count.pkl'
-FREQ_BY_OCCURRENCE_TXT = 'data/freq_by_occurrence.txt'
-FREQ_BY_OCCURRENCE_PKL = 'data/freq_by_occurrence.pkl'
 D2N_THRESHOLD = 500000
 
 def get_dist_to_next(rgb_colors):
@@ -22,14 +18,6 @@ def get_dist_to_next(rgb_colors):
         d2n.append(get_color_distance(rgb_colors[i], rgb_colors[i + 1]))
     d2n.append(999999)
     return d2n
-
-def load_freq_by_pixel_count():
-    with open(FREQ_BY_PIXEL_COUNT_PKL, 'rb') as f:
-        return pickle.load(f)
-
-def load_freq_by_occurrence():
-    with open(FREQ_BY_OCCURRENCE_PKL, 'rb') as f:
-        return pickle.load(f)
 
 def load_template():
     with open('render/templates/color_freq.html') as html:
@@ -61,15 +49,16 @@ if __name__ == '__main__':
         ))
     """
     filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, data)
+
     # Take a cut
-    cut = itertools.islice(filtered, 40)
+    cut = itertools.islice(filtered, 3)
     """
     with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
             data=filtered
         ))
     """
-    filtered_rgb_colors = list(map(lambda x: x['rgb'], cut))
+    filtered_rgb_colors = list(map(lambda x: list(x['rgb']), cut))
     print(filtered_rgb_colors)
     matches = search_colors(filtered_rgb_colors)
     print(matches)

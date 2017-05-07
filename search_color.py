@@ -8,6 +8,11 @@ import json
 import sys
 
 def search_color(color_match):
+    """
+    Searches for a given RGB color in the data file and returns a dictionary
+    of containing the websites that have that color and the frequency of
+    color. color_match must be of the form [red, green, blue]
+    """
     matches = {}
     def cb(url, colors):
         for entry in colors:
@@ -17,6 +22,12 @@ def search_color(color_match):
     return matches
 
 def search_colors(colors_match):
+    """
+    Seaches for a list of RGB colors in the data file and returns a dictionary
+    containing the searched colors and the websites with those colors and the
+    frequencies of each color per website. colors_match must be of the form
+    [[red, green, blue], ... , [red, green, blue]]
+    """
     matches = defaultdict(list)
     def cb(url, colors):
         for entry in colors:
