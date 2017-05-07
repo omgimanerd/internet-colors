@@ -6,6 +6,7 @@ from search_color import search_colors
 from util import get_color_distance, get_foreground_color, rgb_to_hex, rgb_to_hsv
 
 import colorsys
+import itertools
 import pickle
 import os
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     """
     filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, data)
     # Take a cut
-    cut = filtered[:40]
+    cut = itertools.islice(filtered, 40)
     """
     with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(
@@ -69,4 +70,6 @@ if __name__ == '__main__':
         ))
     """
     filtered_rgb_colors = list(map(lambda x: x['rgb'], cut))
+    print(filtered_rgb_colors)
     matches = search_colors(filtered_rgb_colors)
+    print(matches)

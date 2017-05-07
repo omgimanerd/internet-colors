@@ -19,7 +19,7 @@ def get_color_distance(rgb1, rgb2):
     Given two RGB color values, this returns the squared euclidean distance
     between the two colors.
     """
-    return sum([(rgb1[i] + rgb2[i]) ** 2 for i in range(3)])
+    return sum([(rgb1[i] - rgb2[i]) ** 2 for i in range(3)])
 
 def get_foreground_color(rgb):
     """

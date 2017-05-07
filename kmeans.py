@@ -10,31 +10,57 @@ def get_centroid(colors, weights):
     for i, weight in enumerate(weights):
         colors[i] = [c * weight for c in colors[i]]
     rgb = zip(*colors)
-    return [sum(v) / sum(weights) for v in rgb]
+    wsum = sum(weights)
+    return [sum(v) / wsum for v in rgb]
 
-def get_closest_centroid_index(p, points):
+def get_closest_centroid_index(p, centroids):
     index = 0
-    min_distance = get_color_distance(p, points[0])
-    for i in range(1, len(points)):
-        distance = get_color_distance(p, points[i])
+    min_distance = get_color_distance(p, centroids[0])
+    for i in range(1, len(centroids)):
+        distance = get_color_distance(p, centroids[i])
         if distance < min_distance:
             min_distance = distance
             index = i
-    return i
+    return index
 
 def kmeans(k, colors, weights, cutoff):
+    """
+    colors is an array of rgb colors
+    weights is a parallel array to colors containing the weight of each color value
+    """
     centroids = random.sample(colors, k)
-    while True:
+    biggest_shift = cutoff + 1
+    j = 0
+    while biggest_shift > cutoff:
         clusters = [[] for i in centroids]
-        for color in colors:
+        cluster_weights = [[] for i in centroids]
+        shifts = [[] for i in centroids]
+        for color, weight in zip(colors, weights):
             index = get_closest_centroid_index(color, centroids)
             clusters[index].append(color)
-        biggest_shift = 0
+            cluster_weights[index].append(weight)
         for i, cluster in enumerate(clusters):
-            new_centroid = get_centroid(cluster)
-            shift = get_color_distance(new_centroid, centroids[i])
-            biggest_shift = max(shift, biggest_shift)
+            new_centroid = centroids[i]
+            if len(cluster) > 0:
+                new_centroid = get_centroid(cluster, cluster_weights[i])
+            shifts[i] = get_color_distance(new_centroid, centroids[i])
             centroids[i] = new_centroid
-        if biggest_shift < cutoff:
-            break
+        biggest_shift = max(shifts)
     return centroids, clusters
+
+if __name__ == '__main__':
+    from mpl_toolkits.mplot3d import Axes3D
+    from sklearn.datasets.samples_generator import make_blobs
+    import matplotlib.pyplot as plt
+    
+    centers = [[25, 25, 25], [100, 100, 100], [2, 57, 20]]
+    p, l = make_blobs(n_samples=100, centers=centers, cluster_std=5, random_state=0)
+    w = [1 for i in range(100)]
+    centroids, clusters = kmeans(3, list(p), w, 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    r, g, b = zip(*p)
+    cr, cg, cb = zip(*centroids)
+    ax.scatter(r, g, b, c='red')
+    ax.scatter(cr, cg, cb, c='green', s=100)
+    plt.show()
