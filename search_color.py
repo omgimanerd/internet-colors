@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-from util import iter_colors, rgb_to_hex
+from util import map_colors, rgb_to_hex
 
 import json
 import sys
@@ -18,7 +18,7 @@ def search_color(color_match):
         for entry in colors:
             if entry[1] == color_match:
                 matches[url] = entry[0]
-    iter_colors(cb)
+    map_colors(cb)
     return matches
 
 def search_colors(colors_match):
@@ -33,7 +33,7 @@ def search_colors(colors_match):
         for entry in colors:
             if entry[1] in colors_match:
                 matches[tuple(entry[1])].append([url, entry[0]])
-    iter_colors(cb)
+    map_colors(cb)
     return dict(matches)
 
 def main():

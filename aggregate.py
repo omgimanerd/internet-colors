@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from PIL import Image
-from multiprocessing import cpu_count
 from subprocess import Popen, PIPE
 
 from util import chunk
@@ -12,7 +11,7 @@ import json
 import threading
 import os
 
-NUM_THREADS = cpu_count()
+NUM_THREADS = 8
 WEBSITE_CSV = "data/top_500_domains.csv"
 COLORS_FILE = "data/colors.txt"
 IMAGE_WIDTH = 1920

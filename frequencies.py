@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from util import iter_colors
+from util import map_colors
 
 import json
 import pickle
@@ -23,7 +23,7 @@ def get_frequency_by_pixel_count():
         for entry in colors:
             freq[tuple(entry[1])] += entry[0]
         print('Indexed {}...'.format(url))
-    iter_colors(cb)
+    map_colors(cb)
     return freq
 
 def load_freq_by_pixel_count():
@@ -36,7 +36,7 @@ def get_frequency_by_occurrence():
         for entry in colors:
             freq[tuple(entry[1])] += 1
         print('Indexed {}...'.format(url))
-    iter_colors(cb)
+    map_colors(cb)
     return freq
 
 def load_freq_by_occurrence():

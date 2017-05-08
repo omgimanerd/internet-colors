@@ -2,17 +2,22 @@
 # Helper functions for color and file manipulations
 # Author: Alvin Lin (alvin@omgimanerd.tech)
 
+from queue import Queue
+
 import colorsys
 import json
+import threading
 
-COLORS_FILE = 'data/colors.txt'
+NUM_THREADS = 8
 
-def chunk(l, n):
+def chunk(a, n):
     """
     Given a list and an integer n, this splits the list in n evenly sized
     chunks.
     """
-    return [l[i::n] for i in range(n)]
+    k, m = divmod(len(a), n)
+    return list(a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)]
+                for i in range(n))
 
 def get_color_distance(rgb1, rgb2):
     """
@@ -40,8 +45,24 @@ def iter_colors(fn):
     def map_fn(line):
         data = line.split('_')
         return fn(data[0], json.loads(data[1]))
-    with open(COLORS_FILE) as f:
+    with open('data/colors.txt') as f:
         return list(map(map_fn, f))
+
+def map_colors(fn):
+    """
+    Given a callback function, this will run the callback function on
+    each entry in the colors data file.
+    """
+    def thread_fn(file_o):
+        for line in file_o:
+            data = line.split('_')
+            fn(data[0], json.loads(data[1]))
+    files = [open("data/colors0{}.txt".format(i)) for i in range(NUM_THREADS)]
+    threads = [threading.Thread(
+        target=thread_fn, args=(files[i],)) for i in range(NUM_THREADS)]
+    [thread.start() for thread in threads]
+    [thread.join() for thread in threads]
+    [f.close() for f in files]
 
 def norm_rgb(rgb):
     """
@@ -49,7 +70,7 @@ def norm_rgb(rgb):
     colors scaled from 0-255 to 0-1.
     """
     return list(map(lambda x: x / 255, rgb))
-    
+
 def rgb_to_hex(rgb):
     """
     Given an RGB color value, this returns the hex code corresponding to the
@@ -65,13 +86,6 @@ def rgb_to_hsv(rgb):
     return colorsys.rgb_to_hsv(*list(map(lambda x: x / 255, rgb)))
 
 if __name__ == '__main__':
-    c = [0, 13, 57]
-    d = [1, 13, 58]
-    print(rgb_to_hex(c))
-    print(rgb_to_hsv(d))
-    print(get_color_distance(c, d))
-    d = []
     def p(url, colors):
-        d.append(url)
+        print(url)
     iter_colors(p)
-    print(d)
