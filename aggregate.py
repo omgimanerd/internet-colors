@@ -95,10 +95,10 @@ def get_urls():
 
 def aggregate(urls, logfile):
     """
-    This is a single threaded aggregation method for fetching website
+    This is an aggregation method for fetching website
     screenshot color data. We can call this with all the urls to do
     the aggregation with a single thread, or we can split the urls
-    into chunks to do this with multi-threading
+    into chunks to do this with multi-threading.
     """
     # From waflores
     # Protip - you can actually get logging to give you TID for free
