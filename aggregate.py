@@ -92,18 +92,17 @@ def get_urls():
     return [field.split(',')[1].strip('\"') for field in data]
 
 
-def aggregate(urls):
+def aggregate(urls, logfile):
     """
     This is a single threaded aggregation method for fetching website
     screenshot color data. We can call this with all the urls to do
     the aggregation with a single thread, or we can split the urls
     into chunks to do this with multi-threading
     """
+    # From waflores
     # Protip - you can actually get logging to give you TID for free
     # https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial
-    # Thanks to Will Flores for this
     log.debug("started")
-    logfile = "{}.tmp.log".format(threading.currentThread().getName())
     for url in urls:
         result = write_image_data(url, logfile)
         log.debug(result["message"])
@@ -116,10 +115,14 @@ def threaded_aggregate():
     data.
     """
     urls = chunk(get_urls(), NUM_THREADS)
+    logfiles = ["Thread{}.tmp.log".format(i) for i in range(NUM_THREADS)]
     threads = [threading.Thread(
-        target=aggregate, args=(urls[i],)) for i in range(NUM_THREADS)]
+        target=aggregate,
+        args=(urls[i], logfiles[i])) for i in range(NUM_THREADS)]
     [thread.start() for thread in threads]
     [thread.join() for thread in threads]
+    with contextlib.suppress(FileNotFoundError):
+        [os.remove(logfile) for logfile in logfiles]
 
 
 if __name__ == "__main__":
