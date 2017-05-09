@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+from multiprocessing import Pool
 from PIL import Image
+
 from util import chunk
 
 import contextlib
@@ -9,12 +11,11 @@ import io
 import json
 import logging
 import subprocess
-import threading
 import os
 
 log = logging.getLogger('aggregate')
 streamHandler = logging.StreamHandler()
-streamHandler.setFormatter(logging.Formatter("%(threadName)s %(message)s"))
+streamHandler.setFormatter(logging.Formatter("%(processName)s %(message)s"))
 log.setLevel(logging.DEBUG)
 log.addHandler(streamHandler)
 
@@ -111,16 +112,14 @@ def aggregate(urls, logfile):
 
 def threaded_aggregate():
     """
-    This method uses multithreading to fetch website screenshot color
-    data.
+    This method uses multithreading to fetch website screenshot color data.
     """
+    pool = Pool(NUM_THREADS)
     urls = chunk(get_urls(), NUM_THREADS)
     logfiles = ["Thread{}.tmp.log".format(i) for i in range(NUM_THREADS)]
-    threads = [threading.Thread(
-        target=aggregate,
-        args=(urls[i], logfiles[i])) for i in range(NUM_THREADS)]
-    [thread.start() for thread in threads]
-    [thread.join() for thread in threads]
+    pool.starmap(aggregate, zip(urls, logfiles))
+    pool.close()
+    pool.join()
     with contextlib.suppress(FileNotFoundError):
         [os.remove(logfile) for logfile in logfiles]
 
