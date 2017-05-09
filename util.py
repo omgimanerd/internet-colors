@@ -2,7 +2,7 @@
 # Helper functions for color and file manipulations
 # Author: Alvin Lin (alvin@omgimanerd.tech)
 
-from multiprocessing import Pool
+from multiprocessing import Process
 
 import colorsys
 import json
@@ -54,16 +54,31 @@ def map_colors(fn):
     Given a callback function, this will run the callback function on
     each entry in the colors data file.
     """
+    files = [("data/colors0{}.txt".format(i),) for i in range(NUM_THREADS)]
     def thread_fn(filename):
         with open(filename) as f:
             for line in f:
                 data = line.split('_')
                 fn(data[0], json.loads(data[1]))
-    pool = Pool(NUM_THREADS)
-    files = ["data/colors0{}.txt".format(i) for i in range(NUM_THREADS)]
-    pool.starmap(thread_fn, files)
-    pool.close()
-    pool.join()
+    processes = [Process(target=thread_fn, args=file) for file in files]
+    [p.start() for p in processes]
+    [p.join() for p in processes]
+
+# def map_colors(fn):
+#     """
+#     Given a callback function, this will run the callback function on
+#     each entry in the colors data file.
+#     """
+#     files = [("data/colors0{}.txt".format(i),) for i in range(NUM_THREADS)]
+#     with multiprocessing.Manager() as manager:
+#         def thread_fn(filename):
+#             with open(filename) as f:
+#                 for line in f:
+#                     data = line.split('_')
+#                     fn(data[0], json.loads(data[1]))
+#         pool.starmap(thread_fn, files)
+#         pool.close()
+#         pool.join()
 
 def norm_rgb(rgb):
     """
