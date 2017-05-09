@@ -2,14 +2,17 @@
 
 from datetime import datetime
 from PIL import Image
-from subprocess import Popen, PIPE
-
 from util import chunk
 
+import contextlib
 import io
 import json
+import logging
+import subprocess
 import threading
 import os
+
+logging.basicConfig(level=logging.DEBUG)
 
 NUM_THREADS = 8
 WEBSITE_CSV = "data/top_500_domains.csv"
@@ -17,6 +20,7 @@ COLORS_FILE = "data/colors.txt"
 IMAGE_WIDTH = 1920
 IMAGE_HEIGHT = 1080
 TIMEOUT_DURATION = 60
+
 
 def get_screenshot_command(url, logfile):
     """
@@ -30,27 +34,26 @@ def get_screenshot_command(url, logfile):
             "-g", str(IMAGE_WIDTH), str(IMAGE_HEIGHT),
             "--timeout={}".format(TIMEOUT_DURATION)]
 
+
 def get_image(url, logfile):
     """
     Given a url and a logfile name, this function runs the webkit2png
     script on the url and returns a PIL Image object containing a
     screenshot of the webpage.
     """
-    try:
+    with contextlib.suppress(OSError):
         os.unlink(logfile)
-    except:
-        pass
-    command = Popen(get_screenshot_command(url, logfile),
-                    stdout=PIPE, stderr=PIPE)
-    output, error = command.communicate()
+
+    output = subprocess.run(get_screenshot_command(url, logfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     with open(logfile) as log:
         data = log.read()
         if "Failed to load" in data:
             return None
-    try:
+
+    with contextlib.suppress(OSError):  # Add more stuff here
         return Image.open(io.BytesIO(output))
-    except:
-        return None
+
 
 def write_image_data(url, logfile):
     """
@@ -76,13 +79,15 @@ def write_image_data(url, logfile):
             url, width, height, (end - start).total_seconds())
     }
 
+
 def get_urls():
     """
     This method fetches the urls to screenshot from a CSV of domains
     """
     with open(WEBSITE_CSV) as f:
-        data = f.read().strip().split("\n")[1:]
-    return list(map(lambda field: field.split(",")[1].strip("\""), data))
+        data = f.read().splitlines()[1:]
+    return [field.split(',')[1].strip('\"') for field in data]
+
 
 def aggregate(urls):
     """
@@ -92,12 +97,15 @@ def aggregate(urls):
     into chunks to do this with multi-threading
     """
     name = threading.currentThread().getName()
-    print("THREAD {} STARTED".format(name))
+    # Protip - you can actually get logging to give you TID for free
+    # https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial
+    logging.debug("THREAD {} STARTED".format(name))
     logfile = "{}.tmp.log".format(name)
     for url in urls:
         result = write_image_data(url, logfile)
-        print("THREAD {}: {}".format(name, result["message"]))
-    print("THREAD {} COMPLETED".format(name))
+        logging.debug("THREAD {}: {}".format(name, result["message"]))
+    logging.debug("THREAD {} COMPLETED".format(name))
+
 
 def threaded_aggregate():
     """
@@ -109,6 +117,7 @@ def threaded_aggregate():
         target=aggregate, args=(urls[i],)) for i in range(NUM_THREADS)]
     [thread.start() for thread in threads]
     [thread.join() for thread in threads]
+
 
 if __name__ == "__main__":
     threaded_aggregate()
