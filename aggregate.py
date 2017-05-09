@@ -12,7 +12,11 @@ import subprocess
 import threading
 import os
 
-logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger('aggregate')
+streamHandler = logging.StreamHandler()
+streamHandler.setFormatter(logging.Formatter("%(threadName)s %(message)s"))
+log.setLevel(logging.DEBUG)
+log.addHandler(streamHandler)
 
 NUM_THREADS = 8
 WEBSITE_CSV = "data/top_500_domains.csv"
@@ -41,17 +45,16 @@ def get_image(url, logfile):
     script on the url and returns a PIL Image object containing a
     screenshot of the webpage.
     """
-    with contextlib.suppress(OSError):
-        os.unlink(logfile)
-
-    output = subprocess.run(get_screenshot_command(url, logfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(logfile)
+    output = subprocess.run(get_screenshot_command(url, logfile),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE).stdout
     with open(logfile) as log:
         data = log.read()
         if "Failed to load" in data:
             return None
-
-    with contextlib.suppress(OSError):  # Add more stuff here
+    with contextlib.suppress(OSError):
         return Image.open(io.BytesIO(output))
 
 
@@ -96,15 +99,15 @@ def aggregate(urls):
     the aggregation with a single thread, or we can split the urls
     into chunks to do this with multi-threading
     """
-    name = threading.currentThread().getName()
     # Protip - you can actually get logging to give you TID for free
     # https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial
-    logging.debug("THREAD {} STARTED".format(name))
-    logfile = "{}.tmp.log".format(name)
+    # Thanks to Will Flores for this
+    log.debug("started")
+    logfile = "{}.tmp.log".format(threading.currentThread().getName())
     for url in urls:
         result = write_image_data(url, logfile)
-        logging.debug("THREAD {}: {}".format(name, result["message"]))
-    logging.debug("THREAD {} COMPLETED".format(name))
+        log.debug(result["message"])
+    log.debug("completed")
 
 
 def threaded_aggregate():
