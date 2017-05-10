@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from collections import defaultdict
+from multiprocessing import Manager
 
 from util import map_colors, rgb_to_hex
 
@@ -13,14 +14,13 @@ def search_color(color_match):
     of containing the websites that have that color and the frequency of
     color. color_match must be of the form [red, green, blue]
     """
-    matches = {}
+    manager = Manager()
+    matches = manager.dict()
     def cb(url, colors):
         for entry in colors:
             if entry[1] == color_match:
                 matches[url] = entry[0]
-                print(matches)
     map_colors(cb)
-    print(matches)
     return matches
 
 def search_colors(colors_match):
@@ -30,11 +30,17 @@ def search_colors(colors_match):
     frequencies of each color per website. colors_match must be of the form
     [[red, green, blue], ... , [red, green, blue]]
     """
-    matches = defaultdict(list)
+    manager = Manager()
+    matches = manager.dict()
     def cb(url, colors):
         for entry in colors:
-            if entry[1] in colors_match:
-                matches[tuple(entry[1])].append([url, entry[0]])
+            freq, color = entry[0], entry[1]
+            if color in colors_match:
+                color = tuple(color)
+                if color in matches:
+                    matches[color].append([url, freq])
+                else:
+                    matches[color] = [[url, freq]]
     map_colors(cb)
     return dict(matches)
 
@@ -49,4 +55,4 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    main()
+    print(search_colors([[224, 191, 154], [255, 255, 255]]))

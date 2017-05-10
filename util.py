@@ -64,22 +64,6 @@ def map_colors(fn):
     [queue.put(None) for i in range(NUM_THREADS)]
     queue.join()
 
-# def map_colors(fn):
-#     """
-#     Given a callback function, this will run the callback function on
-#     each entry in the colors data file.
-#     """
-#     files = [("data/colors0{}.txt".format(i),) for i in range(NUM_THREADS)]
-#     with multiprocessing.Manager() as manager:
-#         def thread_fn(filename):
-#             with open(filename) as f:
-#                 for line in f:
-#                     data = line.split('_')
-#                     fn(data[0], json.loads(data[1]))
-#         pool.starmap(thread_fn, files)
-#         pool.close()
-#         pool.join()
-
 def norm_rgb(rgb):
     """
     Given an RGB color value, this returns the same RGB color value with the
@@ -107,6 +91,5 @@ def rgb_to_hsv(rgb):
 if __name__ == '__main__':
     print(norm_rgb([255, 230, 45]))
     print(rgb_to_hsv([255, 230, 22]))
-    def p(url, colors):
-        url += "hi"
-    map_colors(p)
+    from search_color import search_colors
+    print(search_colors([[224, 191, 154], [24, 35, 97]]))

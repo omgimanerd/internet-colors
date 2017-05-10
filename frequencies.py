@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from util import map_colors, iter_colors
+from util import map_colors
 
 import json
 import logging

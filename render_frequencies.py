@@ -27,19 +27,17 @@ if __name__ == '__main__':
     template = load_template()
     colors = load_freq_by_pixel_count()
     sorted_rgb_colors = sorted(colors, key=lambda x: colors[x])[-200:][::-1]
-    sorted_hex_colors = list(map(rgb_to_hex, sorted_rgb_colors))
-    sorted_hsv_colors = list(map(rgb_to_hsv, sorted_rgb_colors))
-    text_colors = list(map(get_foreground_color, sorted_rgb_colors))
+    sorted_hex_colors = [rgb_to_hex(color) for color in sorted_rgb_colors]
+    sorted_hsv_colors = [rgb_to_hsv(color) for color in sorted_rgb_colors]
+    text_colors = [get_foreground_color(color) for color in sorted_rgb_colors]
     d2n = get_dist_to_next(sorted_rgb_colors)
-    data = []
-    for i in range(len(sorted_rgb_colors)):
-        data.append({
-            'rgb': sorted_rgb_colors[i],
-            'hex': sorted_hex_colors[i],
-            'hsv': sorted_hsv_colors[i],
-            'text': text_colors[i],
-            'd2n': d2n[i]
-        })
+    data = [{
+        'rgb': sorted_rgb_colors[i],
+        'hex': sorted_hex_colors[i],
+        'hsv': sorted_hsv_colors[i],
+        'text': text_colors[i],
+        'd2n': d2n[i]
+    } for i in range(len(sorted_rgb_colors))]
     if not os.path.exists('render/output'):
         os.makedirs('render/output')
     """
@@ -59,6 +57,5 @@ if __name__ == '__main__':
         ))
     """
     filtered_rgb_colors = list(map(lambda x: list(x['rgb']), cut))
-    print(filtered_rgb_colors)
     matches = search_colors(filtered_rgb_colors)
     print(matches)
