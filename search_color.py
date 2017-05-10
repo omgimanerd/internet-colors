@@ -18,7 +18,9 @@ def search_color(color_match):
         for entry in colors:
             if entry[1] == color_match:
                 matches[url] = entry[0]
+                print(matches)
     map_colors(cb)
+    print(matches)
     return matches
 
 def search_colors(colors_match):

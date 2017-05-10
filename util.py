@@ -54,7 +54,9 @@ def map_colors(fn):
             fn(data[0], json.loads(data[1]))
             queue.task_done()
     processes = [
-        Process(target=thread_fn, args=(queue,)) for i in range(NUM_THREADS)]
+        Process(target=thread_fn, args=(queue,))
+        for i in range(NUM_THREADS)
+    ]
     [p.start() for p in processes]
     with open('data/colors.txt') as f:
         for line in f:
