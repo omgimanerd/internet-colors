@@ -2,7 +2,7 @@
 # Helper functions for color and file manipulations
 # Author: Alvin Lin (alvin@omgimanerd.tech)
 
-from multiprocessing import Process
+from multiprocessing import JoinableQueue, Process
 
 import colorsys
 import json
@@ -38,31 +38,29 @@ def get_foreground_color(rgb):
         return "#000000"
     return "#FFFFFF"
 
-def iter_colors(fn):
-    """
-    Given a callback function, this returns a list of the return values when
-    the callback has been run on each entry in the colors data file.
-    """
-    def map_fn(line):
-        data = line.split('_')
-        return fn(data[0], json.loads(data[1]))
-    with open('data/colors.txt') as f:
-        map(map_fn, f)
-
 def map_colors(fn):
     """
     Given a callback function, this will run the callback function on
     each entry in the colors data file.
     """
-    files = [("data/colors0{}.txt".format(i),) for i in range(NUM_THREADS)]
-    def thread_fn(filename):
-        with open(filename) as f:
-            for line in f:
-                data = line.split('_')
-                fn(data[0], json.loads(data[1]))
-    processes = [Process(target=thread_fn, args=file) for file in files]
+    queue = JoinableQueue()
+    def thread_fn(queue):
+        while True:
+            line = queue.get()
+            if line is None:
+                queue.task_done()
+                break
+            data = line.split('_')
+            fn(data[0], json.loads(data[1]))
+            queue.task_done()
+    processes = [
+        Process(target=thread_fn, args=(queue,)) for i in range(NUM_THREADS)]
     [p.start() for p in processes]
-    [p.join() for p in processes]
+    with open('data/colors.txt') as f:
+        for line in f:
+            queue.put(line)
+    [queue.put(None) for i in range(NUM_THREADS)]
+    queue.join()
 
 # def map_colors(fn):
 #     """
