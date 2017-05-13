@@ -45,12 +45,12 @@ def render():
     #     out.write(template.render(data=filtered))
     top20 = itertools.islice(filtered, 20)
     rgb = [list(data['rgb']) for data in top20]
-    template = get_template('reder/templates/color_freq_websites.html')
+    template = get_template('render/templates/color_freq_websites.html')
     matches = search_colors(rgb)
     with open('output/freq_by_pixel_count_websites.html', 'w') as out:
         out.write(template.render(data=top20, matches=matches))
 
 if __name__ == '__main__':
-    if not os.path.exists('render/output'):
-        os.makedirs('render/output')
+    if not os.path.exists('output'):
+        os.makedirs('output')
     render()
