@@ -36,9 +36,12 @@ def search_colors(colors_match):
         for entry in colors:
             freq, color = entry[0], entry[1]
             if color in colors_match:
+                print(url)
                 color = tuple(color)
                 if color in matches:
-                    matches[color].append([url, freq])
+                    # manager dictionary data is quasi-immutable, so we have to
+                    # do this to hack around that
+                    matches[color] = matches[color] + [[url, freq]]
                 else:
                     matches[color] = [[url, freq]]
     map_colors(cb)
@@ -55,4 +58,4 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    print(search_colors([[224, 191, 154], [255, 255, 255]]))
+    main()

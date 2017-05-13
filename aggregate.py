@@ -26,7 +26,6 @@ IMAGE_WIDTH = 1920
 IMAGE_HEIGHT = 1080
 TIMEOUT_DURATION = 60
 
-
 def get_screenshot_command(url, logfile):
     """
     Given a url and a logfile name, this function formats the webkit2png
@@ -38,7 +37,6 @@ def get_screenshot_command(url, logfile):
             "--feature=javascript",
             "-g", str(IMAGE_WIDTH), str(IMAGE_HEIGHT),
             "--timeout={}".format(TIMEOUT_DURATION)]
-
 
 def get_image(url, logfile):
     """
@@ -58,7 +56,6 @@ def get_image(url, logfile):
     with contextlib.suppress(OSError):
         return Image.open(io.BytesIO(output))
 
-
 def write_image_data(url, logfile):
     """
     Given a url and a logfile name, this fetches a screenshot of the
@@ -74,7 +71,7 @@ def write_image_data(url, logfile):
         }
     width, height = image.size
     colors = sorted(image.getcolors(width * height), key=lambda x: x[0])
-    with open(COLORS_FILE, "a") as f:
+    with open(COLORS_FILE, "a+") as f:
         f.write("{}_{}\n".format(url, json.dumps(colors)))
     end = datetime.now()
     return {
@@ -83,7 +80,6 @@ def write_image_data(url, logfile):
             url, width, height, (end - start).total_seconds())
     }
 
-
 def get_urls():
     """
     This method fetches the urls to screenshot from a CSV of domains
@@ -91,7 +87,6 @@ def get_urls():
     with open(WEBSITE_CSV) as f:
         data = f.read().splitlines()[1:]
     return [field.split(',')[1].strip('\"') for field in data]
-
 
 def aggregate(urls, logfile):
     """
@@ -109,7 +104,6 @@ def aggregate(urls, logfile):
         log.debug(result["message"])
     log.debug("completed")
 
-
 def threaded_aggregate():
     """
     This method uses multithreading to fetch website screenshot color data.
@@ -122,7 +116,6 @@ def threaded_aggregate():
     pool.join()
     with contextlib.suppress(FileNotFoundError):
         [os.remove(logfile) for logfile in logfiles]
-
 
 if __name__ == "__main__":
     threaded_aggregate()

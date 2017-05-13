@@ -59,4 +59,4 @@ if __name__ == '__main__':
     def update(i):
         ax.view_init(30, i)
     anim = FuncAnimation(fig, update, frames=np.arange(0, 360), interval=5)
-    anim.save('render/plot_3d.gif', dpi=80, writer='imagemagick')
+    anim.save('output/plot_3d.gif', dpi=80, writer='imagemagick')

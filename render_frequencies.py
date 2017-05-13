@@ -19,43 +19,38 @@ def get_dist_to_next(rgb_colors):
     d2n.append(999999)
     return d2n
 
-def load_template():
-    with open('render/templates/color_freq.html') as html:
+def get_template(template_path):
+    with open(template_path) as html:
         return Template(html.read())
 
-if __name__ == '__main__':
-    template = load_template()
-    colors = load_freq_by_pixel_count()
+def get_color_objects(colors):
     sorted_rgb_colors = sorted(colors, key=lambda x: colors[x])[-200:][::-1]
     sorted_hex_colors = [rgb_to_hex(color) for color in sorted_rgb_colors]
-    sorted_hsv_colors = [rgb_to_hsv(color) for color in sorted_rgb_colors]
     text_colors = [get_foreground_color(color) for color in sorted_rgb_colors]
     d2n = get_dist_to_next(sorted_rgb_colors)
-    data = [{
+    return [{
         'rgb': sorted_rgb_colors[i],
         'hex': sorted_hex_colors[i],
-        'hsv': sorted_hsv_colors[i],
         'text': text_colors[i],
         'd2n': d2n[i]
     } for i in range(len(sorted_rgb_colors))]
+
+def render():
+    template = get_template('render/templates/color_freq.html')
+    colors = get_color_objects(load_freq_by_pixel_count())
+    # with open('output/freq_by_pixel_count.html', 'w') as out:
+    #     out.write(template.render(data=data))
+    filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, colors)
+    # with open('output/filtered_freq_by_pixel_count.html', 'w') as out:
+    #     out.write(template.render(data=filtered))
+    top20 = itertools.islice(filtered, 20)
+    rgb = [list(data['rgb']) for data in top20]
+    template = get_template('reder/templates/color_freq_websites.html')
+    matches = search_colors(rgb)
+    with open('output/freq_by_pixel_count_websites.html', 'w') as out:
+        out.write(template.render(data=top20, matches=matches))
+
+if __name__ == '__main__':
     if not os.path.exists('render/output'):
         os.makedirs('render/output')
-    """
-    with open('render/output/freq_by_pixel_count.html', 'w') as out:
-        out.write(template.render(
-            data=data
-        ))
-    """
-    filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, data)
-
-    # Take a cut
-    cut = itertools.islice(filtered, 3)
-    """
-    with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
-        out.write(template.render(
-            data=filtered
-        ))
-    """
-    filtered_rgb_colors = list(map(lambda x: list(x['rgb']), cut))
-    matches = search_colors(filtered_rgb_colors)
-    print(matches)
+    render()
