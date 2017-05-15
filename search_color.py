@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from collections import defaultdict
 from multiprocessing import Manager
 
 from util import map_colors, rgb_to_hex

@@ -58,9 +58,13 @@ def map_colors(fn):
         for i in range(NUM_THREADS)
     ]
     [p.start() for p in processes]
+    i = 0
     with open('data/colors.txt') as f:
         for line in f:
+            if i == 30:
+                break
             queue.put(line)
+            i += 1
     [queue.put(None) for i in range(NUM_THREADS)]
     queue.join()
 

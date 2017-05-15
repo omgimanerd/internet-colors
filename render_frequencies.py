@@ -38,11 +38,11 @@ def get_color_objects(colors):
 def render():
     template = get_template('render/templates/color_freq.html')
     colors = get_color_objects(load_freq_by_pixel_count())
-    # with open('render/output/freq_by_pixel_count.html', 'w') as out:
-    #     out.write(template.render(data=colors))
+    with open('render/output/freq_by_pixel_count.html', 'w') as out:
+        out.write(template.render(data=colors))
     filtered = filter(lambda x: x['d2n'] > D2N_THRESHOLD, colors)
-    # with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
-    #     out.write(template.render(data=filtered))
+    with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
+        out.write(template.render(data=filtered))
     top = list(filtered)[:35]
     rgb = [list(data['rgb']) for data in top]
     template = get_template('render/templates/color_freq_websites.html')
