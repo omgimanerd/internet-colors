@@ -10,7 +10,7 @@ import itertools
 import pickle
 import os
 
-D2N_THRESHOLD = 500000
+D2N_THRESHOLD = 7500
 
 def get_dist_to_next(rgb_colors):
     d2n = []
@@ -29,7 +29,7 @@ def get_color_objects(colors):
     text_colors = [get_foreground_color(color) for color in sorted_rgb_colors]
     d2n = get_dist_to_next(sorted_rgb_colors)
     return [{
-        'rgb': sorted_rgb_colors[i],
+        'rgb': tuple(sorted_rgb_colors[i]),
         'hex': sorted_hex_colors[i],
         'text': text_colors[i],
         'd2n': d2n[i]
@@ -38,19 +38,19 @@ def get_color_objects(colors):
 def render():
     template = get_template('render/templates/color_freq.html')
     colors = get_color_objects(load_freq_by_pixel_count())
-    # with open('output/freq_by_pixel_count.html', 'w') as out:
-    #     out.write(template.render(data=data))
-    filtered = filter(lambda x: x['d2n'] < D2N_THRESHOLD, colors)
-    # with open('output/filtered_freq_by_pixel_count.html', 'w') as out:
+    # with open('render/output/freq_by_pixel_count.html', 'w') as out:
+    #     out.write(template.render(data=colors))
+    filtered = filter(lambda x: x['d2n'] > D2N_THRESHOLD, colors)
+    # with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
     #     out.write(template.render(data=filtered))
-    top20 = itertools.islice(filtered, 20)
-    rgb = [list(data['rgb']) for data in top20]
+    top = list(filtered)[:35]
+    rgb = [list(data['rgb']) for data in top]
     template = get_template('render/templates/color_freq_websites.html')
     matches = search_colors(rgb)
-    with open('output/freq_by_pixel_count_websites.html', 'w') as out:
-        out.write(template.render(data=top20, matches=matches))
+    for color in matches:
+        matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
+    with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
+        out.write(template.render(data=top, matches=matches))
 
 if __name__ == '__main__':
-    if not os.path.exists('output'):
-        os.makedirs('output')
     render()

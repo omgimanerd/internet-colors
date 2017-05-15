@@ -36,7 +36,6 @@ def search_colors(colors_match):
         for entry in colors:
             freq, color = entry[0], entry[1]
             if color in colors_match:
-                print(url)
                 color = tuple(color)
                 if color in matches:
                     # manager dictionary data is quasi-immutable, so we have to

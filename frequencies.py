@@ -55,6 +55,5 @@ def write_to_files(by_pixel_count, by_occurrence):
         pickle.dump(by_occurrence, f)
     log.debug('Wrote {}...'.format(FREQ_BY_OCCURRENCE_PKL))
 
-
 if __name__ == '__main__':
     write_to_files(*get_frequencies())

@@ -90,14 +90,8 @@ def get_urls():
 
 def aggregate(urls, logfile):
     """
-    This is an aggregation method for fetching website
-    screenshot color data. We can call this with all the urls to do
-    the aggregation with a single thread, or we can split the urls
-    into chunks to do this with multi-threading.
+    This is a serial aggregation method for fetching screenshot color data.
     """
-    # From waflores
-    # Protip - you can actually get logging to give you TID for free
-    # https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial
     log.debug("started")
     for url in urls:
         result = write_image_data(url, logfile)

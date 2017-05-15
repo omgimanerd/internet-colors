@@ -3,24 +3,42 @@ html, body {
   margin: 0;
   border: 0;
   padding: 0;
+  font-family: "Ubuntu Mono", serif;
 }
 
-div:first-child {
-  margin-top: 25px;
+.container {
+  padding: 25px;
 }
 
-div {
+.container div {
   height: 25px;
-  width: 200px;
   line-height: 25px;
   margin: auto;
-  text-align: center;
-  font-family: "Ubuntu Mono", serif;
   border-top: 1px solid black;
   border-left: 1px solid black;
   border-right: 1px solid black;
 }
 
-div:last-child {
+.freq1 {
+  width: 200px;
+  text-align: center;
+}
+
+.freq2 {
+  width: 900px;
+  padding: 0 25px;
+}
+
+.color {
+  display: inline-block;
+  width: 140px;
+}
+
+.websites {
+  display: inline-block;
+  width: 140px;
+}
+
+.container div:last-child {
   border-bottom: 1px solid black;
 }

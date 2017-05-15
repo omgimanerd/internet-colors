@@ -2,15 +2,24 @@
   <head>
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Ubuntu">
+        href="https://fonts.googleapis.com/css?family=Ubuntu">
   </head>
 
   <body>
-    {% for color in data %}
-    <div style="background-color:{{ color['hex'] }};
-                color:{{ color['text'] }}">
-      {{ color['hex'] }}
+    <div class="container">
+      {% for color in data %}
+      <div style="background-color:{{ color['hex'] }};
+                  color:{{ color['text'] }}" class="freq2">
+        <span class="color">
+        {{ color['hex'] }}
+        </span>
+        {% for match in matches[color['rgb']] %}
+        <span class="websites">
+        {{ match[0] }}
+        </span>
+        {% endfor %}
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </body>
 </html>
