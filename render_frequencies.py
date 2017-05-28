@@ -44,18 +44,19 @@ def render():
     with open('render/output/freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(data=colors))
     logging.debug('Wrote freq_by_pixel_count.html')
-    filtered = filter(lambda x: x['d2n'] > D2N_THRESHOLD, colors)
+    filtered = list(filter(lambda x: x['d2n'] > D2N_THRESHOLD, colors))
     with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(data=filtered))
     logging.debug('Wrote filtered_freq_by_pixel_count.html')
-    top = list(filtered)[:35]
+    top = filtered[:35]
     rgb = [list(data['rgb']) for data in top]
     matches = search_colors(rgb)
-    # template = get_template('render/templates/color_freq_websites.html')
-    # for color in matches:
-    #     matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
-    # with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
-    #     out.write(template.render(data=top, matches=matches))
+    template = get_template('render/templates/color_freq_websites.html')
+    for color in matches:
+        matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
+    with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
+        out.write(template.render(data=top, matches=matches))
+    logging.debug('Wrote freq_by_pixel_count_websites.html')
 
 if __name__ == '__main__':
     render()
