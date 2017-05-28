@@ -56,4 +56,5 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    main()
+    print(search_colors([[255, 255, 255], [128, 23, 12]]))
+    # main()

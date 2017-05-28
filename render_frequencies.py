@@ -7,10 +7,13 @@ from search_color import search_colors
 from util import *
 
 import itertools
+import logging
 import pickle
 import os
 
 D2N_THRESHOLD = 7500
+
+logging.basicConfig(level=logging.DEBUG)
 
 def get_dist_to_next(rgb_colors):
     d2n = []
@@ -40,17 +43,19 @@ def render():
     colors = get_color_objects(load_freq_by_pixel_count())
     with open('render/output/freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(data=colors))
+    logging.debug('Wrote freq_by_pixel_count.html')
     filtered = filter(lambda x: x['d2n'] > D2N_THRESHOLD, colors)
     with open('render/output/filtered_freq_by_pixel_count.html', 'w') as out:
         out.write(template.render(data=filtered))
+    logging.debug('Wrote filtered_freq_by_pixel_count.html')
     top = list(filtered)[:35]
     rgb = [list(data['rgb']) for data in top]
-    template = get_template('render/templates/color_freq_websites.html')
     matches = search_colors(rgb)
-    for color in matches:
-        matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
-    with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
-        out.write(template.render(data=top, matches=matches))
+    # template = get_template('render/templates/color_freq_websites.html')
+    # for color in matches:
+    #     matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
+    # with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
+    #     out.write(template.render(data=top, matches=matches))
 
 if __name__ == '__main__':
     render()

@@ -38,33 +38,39 @@ def get_foreground_color(rgb):
         return "#000000"
     return "#FFFFFF"
 
-def map_colors(fn):
+def map_colors_serial(fn):
     """
     Given a callback function, this will run the callback function on
     each entry in the colors data file.
     """
+    with open('data/colors.txt') as f:
+        for line in f:
+            data = line.split('_')
+            fn(data[0], json.loads(data[1]))
+
+def map_colors(fn):
+    """
+    Given a callback function, this will run the callback function on
+    each entry in the colors data file using multiprocessing. It is best
+    not to manipulate any shared memory inside the callback function.
+    """
     queue = JoinableQueue()
     def thread_fn(queue):
-        while True:
-            line = queue.get()
-            if line is None:
-                queue.task_done()
-                break
+        line = queue.get()
+        while line is not None:
             data = line.split('_')
             fn(data[0], json.loads(data[1]))
             queue.task_done()
+            line = queue.get()
+        queue.task_done()
     processes = [
         Process(target=thread_fn, args=(queue,))
         for i in range(NUM_THREADS)
     ]
     [p.start() for p in processes]
-    i = 0
     with open('data/colors.txt') as f:
         for line in f:
-            if i == 30:
-                break
             queue.put(line)
-            i += 1
     [queue.put(None) for i in range(NUM_THREADS)]
     queue.join()
 
