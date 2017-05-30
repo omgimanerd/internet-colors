@@ -25,18 +25,18 @@ html, body {
 }
 
 .freq2 {
-  width: 900px;
+  width: 1050px;
   padding: 0 25px;
 }
 
 .color {
   display: inline-block;
-  width: 140px;
+  width: 150px;
 }
 
 .websites {
   display: inline-block;
-  width: 140px;
+  width: 160px;
 }
 
 .container div:last-child {

@@ -53,7 +53,8 @@ def render():
     matches = search_colors(rgb)
     template = get_template('render/templates/color_freq_websites.html')
     for color in matches:
-        matches[color] = sorted(matches[color], key=lambda match: match[1])[:5]
+        matches[color] = sorted(
+            matches[color], key=lambda match: match[1])[::-1][:5]
     with open('render/output/freq_by_pixel_count_websites.html', 'w') as out:
         out.write(template.render(data=top, matches=matches))
     logging.debug('Wrote freq_by_pixel_count_websites.html')
