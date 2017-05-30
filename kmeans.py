@@ -4,12 +4,6 @@
 
 import numpy as np
 
-def _get_centroid(colors):
-    """
-    Given a list of colors, this function returns the centroid of the colors.
-    """
-    return colors.mean(axis=0)
-
 def _get_index_closest(p, centroids):
     """
     Given a point p and list of centroids, this function returns the index
@@ -27,7 +21,6 @@ def kmeans(k, colors, weights, cutoff):
     colors = np.array(colors) * np.array(weights).reshape(len(weights), 1)
     # Pick k random colors as starting centroids
     centroids = colors[np.random.randint(colors.shape[0], size=k),:]
-    clusters = None
     biggest_shift = cutoff + 1
     while biggest_shift > cutoff:
         # Calculate which centroid each color is closest to. This generates an
@@ -36,8 +29,7 @@ def kmeans(k, colors, weights, cutoff):
         closest = np.array([_get_index_closest(c, centroids) for c in colors])
         # Get the new centroids by calculating the centroid of the point cluster
         # for each centroid.
-        clusters = np.array(
-            [colors[closest == k] for k in range(centroids.shape[0])])
+        clusters = np.array([colors[closest == i] for i in range(k)])
         new_centroids = np.array([cluster.mean(axis=0) for cluster in clusters])
         # Calculate the amount that the new centroids shifted. When this amount
         # is lower than a specified threshold, then we stop the algorithm.
