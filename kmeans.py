@@ -4,6 +4,9 @@
 
 import numpy as np
 
+def _get_centroid(colors, weights):
+    return (colors * weights).sum(axis=0) / weights.sum()
+
 def _get_index_closest(p, centroids):
     """
     Given a point p and list of centroids, this function returns the index
@@ -18,7 +21,8 @@ def kmeans(k, colors, weights, cutoff):
     return k centroids
     """
     # Multiply the colors by their weights
-    colors = np.array(colors) * np.array(weights).reshape(len(weights), 1)
+    colors = np.array(colors)
+    weights = np.array(weights).reshape(len(weights), 1)
     # Pick k random colors as starting centroids
     centroids = colors[np.random.randint(colors.shape[0], size=k),:]
     biggest_shift = cutoff + 1
@@ -27,10 +31,14 @@ def kmeans(k, colors, weights, cutoff):
         # array of indices representing which centroid the point is closest to.
         # This array is parallel to the points array.
         closest = np.array([_get_index_closest(c, centroids) for c in colors])
-        # Get the new centroids by calculating the centroid of the point cluster
-        # for each centroid.
+        # Cluster the points by grouping them according to which centroid
+        # they're closest to. We will also cluster the weights of the points
+        # for recalculation of the centroid later.
         clusters = np.array([colors[closest == i] for i in range(k)])
-        new_centroids = np.array([cluster.mean(axis=0) for cluster in clusters])
+        cluster_weights = np.array([weights[closest == i] for i in range(k)])
+        # Recalculate the locations of the centroids.
+        new_centroids = np.array([
+            _get_centroid(c, w) for c, w in zip(clusters, cluster_weights)])
         # Calculate the amount that the new centroids shifted. When this amount
         # is lower than a specified threshold, then we stop the algorithm.
         biggest_shift = ((new_centroids - centroids) ** 2).sum(axis=0).min()
@@ -48,13 +56,15 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     centers = [[25, 25, 25], [100, 100, 100], [2, 57, 20]]
-    p, l = make_blobs(n_samples=100, centers=centers, cluster_std=5,
+    p, l = make_blobs(n_samples=20, centers=centers, cluster_std=10,
                       random_state=0)
-    centroids, clusters = kmeans(3, list(p), np.ones(100), 2)
+    weights = np.ones(100)
+    centroids, clusters = kmeans(3, list(p), weights, 1)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    r, g, b = zip(*p)
     cr, cg, cb = zip(*centroids)
-    ax.scatter(r, g, b, c='red')
     ax.scatter(cr, cg, cb, c='green', s=100)
+    for cluster in clusters:
+        r, g, b = zip(*cluster)
+        ax.scatter(r, g, b, c='red', s=10)
     plt.show()

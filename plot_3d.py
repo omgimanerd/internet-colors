@@ -53,17 +53,15 @@ def plot_color_frequencies(colors, frequencies):
     return fig, ax
 
 def plot_color_clusters(colors, frequencies):
-    centroids, clusters = kmeans(10, colors, frequencies, 0.5)
-    print(centroids)
-    print(clusters)
+    centroids, clusters = kmeans(3, colors, frequencies, 0.5)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     r, g, b = zip(*centroids)
     colors = [norm_rgb(color) for color in centroids]
     ax.scatter(r, g, b, c=colors)
-    for cluster in clusters:
-        r, g, b = zip(*cluster)
-        ax.scatter(r, g, b, c=colors)
+    # for cluster in clusters:
+    #     r, g, b = zip(*cluster)
+    #     ax.scatter(r, g, b, c=colors)
     ax.set_xlabel('R')
     ax.xaxis.label.set_color('red')
     ax.set_ylabel('G')
