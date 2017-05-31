@@ -56,9 +56,9 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     centers = [[25, 25, 25], [100, 100, 100], [2, 57, 20]]
-    p, l = make_blobs(n_samples=20, centers=centers, cluster_std=10,
+    p, l = make_blobs(n_samples=80, centers=centers, cluster_std=10,
                       random_state=0)
-    weights = np.ones(100)
+    weights = np.ones(80)
     centroids, clusters = kmeans(3, list(p), weights, 1)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
