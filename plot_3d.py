@@ -53,15 +53,15 @@ def plot_color_frequencies(colors, frequencies):
     return fig, ax
 
 def plot_color_clusters(colors, frequencies):
-    centroids, clusters = kmeans(3, colors, frequencies, 0.5)
+    centroids, clusters = kmeans(8, colors, frequencies, 1)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     r, g, b = zip(*centroids)
     colors = [norm_rgb(color) for color in centroids]
-    ax.scatter(r, g, b, c=colors)
-    # for cluster in clusters:
-    #     r, g, b = zip(*cluster)
-    #     ax.scatter(r, g, b, c=colors)
+    ax.scatter(r, g, b, c=colors, s=100)
+    for color, cluster in zip(colors, clusters):
+        r, g, b = zip(*cluster)
+        ax.scatter(r, g, b, c=color, s=10)
     ax.set_xlabel('R')
     ax.xaxis.label.set_color('red')
     ax.set_ylabel('G')
@@ -82,15 +82,15 @@ def plot_color_clusters(colors, frequencies):
 if __name__ == '__main__':
     colors, frequencies = get_data()
     fig, ax = plot_color_clusters(colors, frequencies)
-    plt.show()
-    # ax.view_init(30, 0)
-    # def update(i):
-    #     ax.view_init(30, i)
-    # anim = FuncAnimation(fig, update, frames=np.arange(0, 360), interval=5)
-    # anim.save('plot_3d_clusters.gif', dpi=80, writer='imagemagick')
+    ax.view_init(30, 0)
+    def update(i):
+        ax.view_init(30, i)
+    anim = FuncAnimation(fig, update, frames=np.arange(0, 360), interval=5)
+    anim.save('render/output/plot_3d_clusters.gif',
+              dpi=80, writer='imagemagick')
     # fig, ax = plot_color_frequencies(colors, frequencies)
     # ax.view_init(30, 0)
     # def update(i):
     #     ax.view_init(30, i)
     # anim = FuncAnimation(fig, update, frames=np.arange(0, 360), interval=5)
-    # anim.save('output/plot_3d.gif', dpi=80, writer='imagemagick')
+    # anim.save('render/output/plot_3d.gif', dpi=80, writer='imagemagick')
